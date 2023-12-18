@@ -4,23 +4,16 @@ import (
 	"context"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"log"
-	"os"
+	"testTask/client"
 	"testTask/constants"
 	"testTask/models"
 )
 
 func GetTransactionInfo(ctx context.Context, txHash string) (*models.TransactionInfo, error) {
-	var (
-		transactionHash = common.HexToHash(txHash)
-	)
-	//TODO: refactor it
-	ethereumClient, err := ethclient.Dial(os.Getenv("RPC_URL"))
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
+	transactionHash := common.HexToHash(txHash)
+	ethereumClient := client.GetRPCClient()
+
 	transaction, _, err := ethereumClient.TransactionByHash(ctx, transactionHash)
 	if err != nil {
 		log.Println(err)

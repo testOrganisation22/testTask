@@ -5,15 +5,20 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"testTask/client"
 	"testTask/handlers"
 )
 
 func main() {
+
+	err := client.CreateRPCConnect()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	r := mux.NewRouter().StrictSlash(true)
 
-	r.HandleFunc("/healthcheck", handlers.GetHealthcheckHandler).Methods(http.MethodGet)
-	r.HandleFunc("/transaction/{txHash}", handlers.GetTransactionInfoHandler).Methods(http.MethodGet)
-	r.HandleFunc("/wallet/balance/{wallet}", handlers.GetWalletBalance).Methods(http.MethodGet)
+	handlers.SetupRoutes(r)
 
 	serverAddr := os.Getenv("HOST") + ":" + os.Getenv("PORT")
 

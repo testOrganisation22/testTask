@@ -4,22 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gorilla/mux"
 	"net/http"
-	"os"
+	"testTask/client"
 	"testTask/error"
 	"testTask/models"
 )
 
 func GetWalletBalance(w http.ResponseWriter, r *http.Request) {
-	//TODO: refactor it
-	ethereumClient, err := ethclient.Dial(os.Getenv("RPC_URL"))
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(error.ServerError.Error()))
-		return
-	}
+	ethereumClient := client.GetRPCClient()
+
 	wallet := mux.Vars(r)["wallet"]
 	if !common.IsHexAddress(wallet) {
 		w.WriteHeader(http.StatusBadRequest)
@@ -28,6 +22,12 @@ func GetWalletBalance(w http.ResponseWriter, r *http.Request) {
 	}
 	walletAddress := common.HexToAddress(wallet)
 	balance, err := ethereumClient.BalanceAt(context.Background(), walletAddress, nil)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(error.ServerError.Error()))
+		return
+	}
 
 	walletWithBalance := models.Wallet{
 		Wallet:  wallet,
